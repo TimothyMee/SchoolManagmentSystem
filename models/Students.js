@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
+const config = require("config");
+const StudentRole = config.get("studentRole");
 
 const StudentSchema = new Schema({
   firstname: {
@@ -19,6 +21,11 @@ const StudentSchema = new Schema({
     unique: true
   },
   role: {
+    type: String,
+    default: StudentRole,
+    required: true
+  },
+  password: {
     type: String,
     required: true
   },

@@ -1,10 +1,11 @@
 const mongoose = require("mongoose");
+const Schema = mongoose.Schema;
 const PermissionSchema = new mongoose.Schema({
-  Role: {
+  role: {
     type: String,
     required: true
   },
-  Permissions: [
+  permissions: [
     {
       permisson: {
         type: String

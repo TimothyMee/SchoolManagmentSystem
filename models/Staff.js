@@ -11,19 +11,20 @@ const StaffSchema = new Schema({
     required: true
   },
   middlename: {
-    type: String,
+    type: String
   },
   email: {
     type: String,
     required: true,
     unique: true
   },
-  role:{
+  role: {
     type: String,
     required: true
   },
-  date_of_appointment:{
-    type: String
+  password: {
+    type: String,
+    required: true
   },
   created_at: {
     type: Date,
@@ -40,7 +41,7 @@ const StaffSchema = new Schema({
     type: Boolean,
     default: false
   },
-  deleted_by:{
+  deleted_by: {
     type: Schema.Types.ObjectId,
     ref: "staff"
   }
