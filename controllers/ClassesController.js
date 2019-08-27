@@ -2,11 +2,12 @@ const { validationResult } = require("express-validator");
 const Student = require("../models/Students");
 const Staff = require("../models/Staff");
 const Permission = require("../models/Permissions");
+const Class = require("../models/Classes");
 const config = require("config");
 const bcrypt = require("bcrypt");
 const { CheckStaffPermissions } = require("./PermissionController");
 
-const createStaff = async (req, res) => {
+const createClasses = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     console.log(errors);
@@ -20,32 +21,27 @@ const createStaff = async (req, res) => {
 
     var haspermission = CheckStaffPermissions(
       staff,
-      config.get("staffCreatePermission")
+      config.get("staffCreateClasses")
     );
     console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
         .status(401)
-        .json({ msg: "You don't have the permission to create staff" });
+        .json({ msg: "You don't have the permission to create classes" });
     }
 
-    const newStaff = {
-      created_by: staff.id,
-      firstname: req.body.firstname,
-      lastname: req.body.lastname,
-      middlename: req.body.middlename,
-      email: req.body.email,
-      role: req.body.role
+    const newClass = {
+      title: req.body.title,
+      course_code: req.body.course_code,
+      semester: req.body.semester,
+      year: req.body.year
     };
 
-    const salt = await bcrypt.genSalt(10);
-    newStaff.password = await bcrypt.hash(req.body.lastname, salt);
+    const ClassObj = new Class(newClass);
+    await ClassObj.save();
 
-    const staffObj = new Staff(newStaff);
-    await staffObj.save();
-
-    res.status(200).json(staffObj);
+    res.status(200).json(ClassObj);
   } catch (error) {
     if (error.kind === "ObjectId") {
       return res.status(400).json({ msg: "staff not found" });
@@ -55,7 +51,7 @@ const createStaff = async (req, res) => {
   }
 };
 
-const getAllStaff = async (req, res) => {
+const getAllClasses = async (req, res) => {
   try {
     //verify staff
     const staff = await Staff.findById(req.staff.id);
@@ -64,23 +60,21 @@ const getAllStaff = async (req, res) => {
 
     var haspermission = CheckStaffPermissions(
       staff,
-      config.get("staffGetAllPermission")
+      config.get("staffGetAllClasses")
     );
     console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
         .status(401)
-        .json({ msg: "You don't have the permission to get all staff" });
+        .json({ msg: "You don't have the permission to get all classes" });
     }
 
-    const allStaff = await Staff.find({ deleted: false })
-      .sort({ created_at: -1 })
-      .populate("created_by", ["name"]);
+    const allClasses = await Class.find().populate("teacher", ["name"]);
 
-    if (!allStaff) return res.status(400).json({ msg: "no Staff found" });
+    if (!allClasses) return res.status(400).json({ msg: "no Classes found" });
 
-    res.status(200).json(allStaff);
+    res.status(200).json(allClasses);
   } catch (error) {
     if (error.kind === "ObjectId") {
       return res.status(400).json({ msg: "staff not found" });
@@ -90,7 +84,7 @@ const getAllStaff = async (req, res) => {
   }
 };
 
-const getStaffById = async (req, res) => {
+const getMyClasses = async (req, res) => {
   try {
     //verify staff
     const staff = await Staff.findById(req.staff.id);
@@ -99,7 +93,40 @@ const getStaffById = async (req, res) => {
 
     var haspermission = CheckStaffPermissions(
       staff,
-      config.get("staffGetOnePermission")
+      config.get("staffMyClasses")
+    );
+    console.log("permission", haspermission);
+    //verify the student
+    if (!haspermission) {
+      return res
+        .status(401)
+        .json({ msg: "You don't have the permission to get all classes" });
+    }
+
+    const allClasses = await Class.find({teacher: staff.id}).populate("teacher", ["name"]);
+
+    if (!allClasses) return res.status(400).json({ msg: "no Classes found" });
+
+    res.status(200).json(allClasses);
+  } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ msg: "staff not found" });
+    }
+    console.error(error.message);
+    res.status(500).send("Server Error");
+  }
+};
+
+const getClassById = async (req, res) => {
+  try {
+    //verify staff
+    const staff = await Staff.findById(req.staff.id);
+    if (!staff || staff.deleted)
+      return res.status(401).json({ msg: "unauthorized user token" });
+
+    var haspermission = CheckStaffPermissions(
+      staff,
+      config.get("staffGetAllClasses")
     );
     console.log("permission", haspermission);
     //verify the student
@@ -109,14 +136,15 @@ const getStaffById = async (req, res) => {
         .json({ msg: "You don't have the permission to get staff" });
     }
 
-    const fetchedStaff = await Staff.findById(req.params.id).populate("created_by", [
-      "name"
-    ]);
+    const fetchedClass = await Staff.findById(req.params.id).populate(
+      "teacher",
+      ["name"]
+    );
 
-    if (!fetchedStaff || fetchedStaff.deleted)
+    if (!fetchedClass)
       return res.status(400).json({ msg: "No Staff found" });
 
-    res.status(200).json(fetchedStaff);
+    res.status(200).json(fetchedClass);
   } catch (error) {
     if (error.kind === "ObjectId") {
       return res.status(400).json({ msg: "Staff not found" });
