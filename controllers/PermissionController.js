@@ -24,7 +24,7 @@ const addPermissionToRole = async (req, res) => {
     if (!haspermission) {
       return res
         .status(401)
-        .json({ msg: "You don't have the permission to create Permission" });
+        .json({ msg: "You don't have the permission to create Permissions" });
     }
 
     const role = req.body.role;
@@ -154,8 +154,8 @@ const removePermissionInRole = async (req, res) => {
         .json({ msg: "You don't have the permission to remove permissions" });
     }
 
-    const permmissions = permission.permissions;
-    let deleteIndex = permission.map(e => e.type).indexOf(req.params.type);
+    const permissions = permission.permissions;
+    let deleteIndex = permissions.map(e => e.type).indexOf(req.params.type);
     permission.permissions.splice(deleteIndex, 1);
 
     await permission.save();
