@@ -1,0 +1,16 @@
+{
+  "name": "school_system",
+  "version": "1.0.0",
+  "description": "A school management system",
+  "main": "Server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "School",
+    "Management",
+    "System"
+  ],
+  "author": "TimothyMee",
+  "license": "MIT"
+}
