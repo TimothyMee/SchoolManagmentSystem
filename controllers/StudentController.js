@@ -4,6 +4,7 @@ const Staff = require("../models/Staff");
 const Permission = require("../models/Permissions");
 const config = require("config");
 const bcrypt = require("bcrypt");
+const { CheckStaffPermissions } = require("./PermissionController");
 
 const createStudent = async (req, res) => {
   const errors = validationResult(req);
@@ -48,7 +49,7 @@ const getAllStudents = async (req, res) => {
       return res.status(401).json({ msg: "unauthorized user token" });
     const students = await Student.find({ deleted: false })
       .sort({ created_date: -1 })
-      .populate("staff", ["name"]);
+      .populate("created_by", ["name"]);
 
     if (!students) return res.status(400).json({ msg: "no Students found" });
 
@@ -69,7 +70,7 @@ const getStudentById = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    const student = await Student.findById(req.params.id).populate("staff", [
+    const student = await Student.findById(req.params.id).populate("created_by", [
       "name"
     ]);
 
@@ -77,6 +78,44 @@ const getStudentById = async (req, res) => {
       return res.status(400).json({ msg: "No Student found" });
 
     res.status(200).json(student);
+  } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ msg: "staff not found" });
+    }
+    console.error(error.message);
+    return res.status(500).send("Server Error");
+  }
+};
+
+const viewMyProfile_Student = async (req, res) => {
+  try {
+    //verify staff
+    const student = await Student.findById(req.student.id).populate("created_by", [
+      "name"
+    ]);
+    if (!student || student.deleted)
+      return res.status(400).json({ msg: "No Student found" });
+
+    res.status(200).json(student);
+  } catch (error) {
+    if (error.kind === "ObjectId") {
+      return res.status(400).json({ msg: "staff not found" });
+    }
+    console.error(error.message);
+    return res.status(500).send("Server Error");
+  }
+};
+
+const viewMyProfile_Staff = async (req, res) => {
+  try {
+    //verify staff
+    const staff = await Staff.findById(req.staff.id).populate("created_by", [
+      "name"
+    ]);
+    if (!staff || staff.deleted)
+      return res.status(400).json({ msg: "No Staff found" });
+
+    res.status(200).json(staff);
   } catch (error) {
     if (error.kind === "ObjectId") {
       return res.status(400).json({ msg: "staff not found" });
@@ -162,23 +201,12 @@ const deleteStudentWithId = async (req, res) => {
   }
 };
 
-const CheckStaffPermissions = (staff, action) => {
-  const role = staff.role;
-  const permissionGroup = Permission.findOne({ role: role });
-  const permissions = permissionGroup.permissions;
-
-  var permission = permissions.filter(e => e.permission === action);
-  if (permission) {
-    return true;
-  } else {
-    return false;
-  }
-};
-
 module.exports = {
   createStudent,
   getAllStudents,
   getStudentById,
   updateStudentWithId,
-  deleteStudentWithId
+  deleteStudentWithId,
+  viewMyProfile_Student,
+  viewMyProfile_Staff
 };
