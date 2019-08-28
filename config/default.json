@@ -1,0 +1,37 @@
+{
+  "mongoURI": "mongodb+srv://schoolsystem:schoolsystem123@cluster101-tnnw9.mongodb.net/test?retryWrites=true&w=majority",
+  "jwtSecret": "jwtschoolsystemsecret",
+
+  "roles": {
+    "student": "STUDENT",
+    "principal": "PRINCIPAL",
+    "admin": "ADMIN",
+    "teacher": "TEACHER"
+  },
+
+  "permissions": {
+    "createstudent": "CREATE_STUDENT",
+    "createpermission": "CREATE_PERMISSION",
+    "updatestudent": "UPDATE_STUDENT",
+    "deletestudent": "DELETE_STUDENT",
+    "createstaff": "CREATE_STAFF",
+    "getallstaff": "GET_ALL_STAFF",
+    "getstaff": "GET_STAFF",
+    "updatestaff": "UPDATE_STAFF",
+    "deletestaff": "DELETE_STAFF",
+    "getallpermission": "GET_ALL_PERMISSION",
+    "getpermission": "GET_PERMISSION",
+    "removepermission": "REMOVE_PERMISSION",
+    "createclasses": "CREATE_CLASSES",
+    "getallclasses": "GET_ALL_CLASSES",
+    "getclass": "GET_CLASS",
+    "updateclasses": "UPDATE_CLASSES",
+    "getmyclasses": "GET_MY_CLASSES",
+    "addstudenttoclass": "ADD_STUDENT_TO_CLASS"
+  },
+
+  "studentrole": "",
+  "staffUpdateClasses": "UPDATE_CLASS",
+  "RemoveStudentFromClass": "REMOVE_STUDENT_FROM_CLASS",
+  "AddStudentToClass": "ADD_STUDENT_TO_CLASS"
+}
