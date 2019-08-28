@@ -13,6 +13,6 @@ app.get("/", (req, res) => {
 app.use("/api", require("./api"));
 
 const PORT = 5000;
-app.listen(PORT, () => {
+app.listen(process.env.PORT || PORT, () => {
   console.log(`Server started on port on ${PORT}`);
 });
