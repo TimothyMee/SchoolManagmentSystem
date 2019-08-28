@@ -124,8 +124,7 @@ router.post(
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     {
- *      "data": {
+ *       {
  *          "firstname": "Timothy",
  *          "middlename": "Mee",
  *          "lastname" : "Doe",
@@ -136,7 +135,6 @@ router.post(
  *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
  *          "deleted": false
  *        },
- *     }
  *
  *
  * @apiErrorExample {json} List error
@@ -228,7 +226,7 @@ router.get("/student", auth, getAllStudents);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "Timothy",
  *          "middlename": "Mee",
  *          "lastname" : "Doe",
@@ -279,7 +277,7 @@ router.get("/student/:id", auth, getStudentById);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "timothymee",
  *          "middlename": "Mee",
  *          "lastname" : "Doe",
@@ -319,7 +317,7 @@ router.put("/student/:id", auth, updateStudentWithId);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "Timothy",
  *          "middlename": "Mee",
  *          "lastname" : "Doe",
@@ -357,7 +355,7 @@ router.get("/student/myprofile", auth, viewMyProfile_Student);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "TimothyStaff",
  *          "middlename": "MeeStaff",
  *          "lastname" : "DoeStaff",
@@ -397,7 +395,7 @@ router.get("/staff/myprofile", auth, viewMyProfile_Staff);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: { "Student deleted  successfully" }
+ *     { "Student deleted  successfully" }
  *
  * @apiErrorExample {json} List error
  *    HTTP/1.1 500 Server Error
@@ -441,7 +439,7 @@ router.delete("/student/:id", auth, deleteStudentWithId);
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
  *     {
- *      "data": {
+ *      {
  *          "firstname": "John",
  *          "middlename": "Franker",
  *          "lastname" : "numb",
@@ -545,7 +543,7 @@ router.get("/staff", auth, getAllStaff);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "John",
  *          "middlename": "Franker",
  *          "lastname" : " numb",
@@ -596,7 +594,7 @@ router.get("/staff/:id", auth, getStaffById);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "firstname": "timothymee",
  *          "middlename": "franker",
  *          "lastname" : "numb",
@@ -638,7 +636,7 @@ router.put("/staff/:id", auth, updateStaffWithId);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: { "staff deleted  successfully" }
+ *      { "staff deleted  successfully" }
  *
  * @apiErrorExample {json} List error
  *    HTTP/1.1 500 Server Error
@@ -678,7 +676,7 @@ router.delete("/staff/:id", auth, deleteStaffWithId);
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
  *     {
- *      "data": {
+ *       {
  *          "role": "PRINCIPAL",
  *          "permissions": "[{
  *              id : "5d661d5ed5d661d5edcd"
@@ -733,7 +731,7 @@ router.post(
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *     {
  *          "role": "PRINCIPAL",
  *           "permissions": "[{
  *              id : "5d661d5ed5d661d5edcd"
@@ -774,7 +772,7 @@ router.get("/permission", auth, getPermissions);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *      {
  *          "role": "PRINCIPAL",
  *           "permissions": "[{
  *              id : "5d661d5ed5d661d5edcd"
@@ -816,7 +814,7 @@ router.get("/permission/:role", auth, getPermissionsByRole);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     data: {
+ *      {
  *          "role": "PRINCIPAL",
  *           "permissions": "[]",
  *          "created_at": "2019-08-28T04:23:28.886+00:00",
@@ -1082,7 +1080,7 @@ router.get("/class/:id", auth, getClassById);
 router.put("/class/:id", auth, updateClassWithId);
 
 /**
- * @api {delete} /api/v1.0/class/:class_id/:student_id Update a Class
+ * @api {delete} /api/v1.0/class/:class_id/:student_id deletes a student from a Class
  * @apiVersion 1.0.0
  * @apiName Delete Student from class
  * @apiGroup Class
@@ -1098,7 +1096,7 @@ router.put("/class/:id", auth, updateClassWithId);
  * }
  *
  *
- * $http.put(url, config)
+ * $http.delete(url, config)
  *   .success((res, status) => doSomethingHere())
  *   .error((err, status) => doSomethingHere());
  *
@@ -1252,6 +1250,10 @@ router.put("/class/:class_id/add", auth, addMyselfToClass);
  *          "principal": "PRINCIPAL",
  *          "admin": "ADMIN",
  *          "teacher": "TEACHER"
+ *          "finance": "FINANCE",
+ *          "management": "MANAGEMENT",
+ *          "general": "GENERAL",
+ *          "contractor": "CONTRACTOR"
  *        },
  *
  *

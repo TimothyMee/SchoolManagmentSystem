@@ -6,7 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server",
-    "server": "nodemon server"
+    "server": "nodemon server",
+    "docs": "apidoc -e \"(node_modules)\" -o public/apidoc"
   },
   "keywords": [
     "School",

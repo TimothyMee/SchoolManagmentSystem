@@ -6,7 +6,11 @@
     "student": "STUDENT",
     "principal": "PRINCIPAL",
     "admin": "ADMIN",
-    "teacher": "TEACHER"
+    "teacher": "TEACHER",
+    "finance": "FINANCE",
+    "management": "MANAGEMENT",
+    "general": "GENERAL",
+    "contractor": "CONTRACTOR"
   },
 
   "permissions": {

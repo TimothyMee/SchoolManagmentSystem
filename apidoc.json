@@ -1,0 +1,8 @@
+{
+  "name": "School Management System API documentation",
+  "version": "1.0.0",
+  "description": "API for School management",
+  "template": {
+    "forceLanguage": "en"
+  }
+}

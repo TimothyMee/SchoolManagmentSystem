@@ -1,14 +1,13 @@
 const express = require("express");
 const connectDB = require("./config/db");
+var path = require("path");
 
 const app = express();
 //database connection
 connectDB();
 
 app.use(express.json({ extended: false }));
-app.get("/", (req, res) => {
-  res.send("API Running");
-});
+app.use("/", express.static(__dirname + "/public/apidoc"));
 
 app.use("/api", require("./api"));
 
