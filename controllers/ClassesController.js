@@ -257,7 +257,7 @@ const addStudentToClass = async (req, res) => {
 
     var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("AddStudentToClass")
+      config.get("permission.addstudenttoclass")
     );
     if (!haspermission) {
       return res
@@ -302,7 +302,7 @@ const addMyselfToClass = async (req, res) => {
       return res.status(400).json({ msg: "No Student found" });
 
     var haspermission = await CheckStaffPermissions(
-      staff,
+      studentToBeAdded,
       config.get("AddStudentToClass")
     );
     if (!haspermission) {

@@ -94,7 +94,7 @@ router.post(
  * @apiVersion 1.0.0
  * @apiName Create Student
  * @apiGroup Student
- * @apiPermission authenticated staff
+ * @apiPermission authenticated staff with CREATE_STUDENT permission
  *
  * @apiParam (Request body) {String} firstname The Student's firstname
  * @apiParam (Request body) {String} lastname The Student's lastname
@@ -250,7 +250,7 @@ router.get("/student/:id", auth, getStudentById);
  * @apiVersion 1.0.0
  * @apiName Update Student
  * @apiGroup Student
- * @apiPermission authenticated staff
+ * @apiPermission authenticated staff with UPDATE_STUDENT permission
  *
  * @apiParam {id} id The student's id
  * @apiParam (Request body) {firstname} id The student's id
@@ -377,7 +377,7 @@ router.get("/staff/myprofile", auth, viewMyProfile_Staff);
  * @apiVersion 1.0.0
  * @apiName Delete Student
  * @apiGroup Student
- * @apiPermission authenticated staff
+ * @apiPermission authenticated staff with DELETE_STUDENT permission
  *
  * @apiParam {id} id The student's id
  *
@@ -1082,12 +1082,153 @@ router.get("/class/:id", auth, getClassById);
  *    HTTP/1.1 400 no Classes found
  */
 router.put("/class/:id", auth, updateClassWithId);
+
+/**
+ * @api {delete} /api/v1.0/class/:class_id/:student_id Update a Class
+ * @apiVersion 1.0.0
+ * @apiName Delete Student from class
+ * @apiGroup Class
+ * @apiPermission authenticated staff With DELETE_STUDENT_FROM_CLASS permissions
+ *
+ * @apiParam {class_id} id The class's id
+ * @apiParam {student_id} id The class's student id
+ *
+ * @apiExample {js} Example usage:
+ *
+ * const config = {
+ *  "x-auth-token" : "authenticated staff token"
+ * }
+ *
+ *
+ * $http.put(url, config)
+ *   .success((res, status) => doSomethingHere())
+ *   .error((err, status) => doSomethingHere());
+ *
+ * @apiSuccess (Success 200) {Object} Class Object of Update Class!
+ *
+ * @apiSuccessExample {json} Success response:
+ *     HTTPS 200 OK
+ *     "data": {
+ *          "title": "English",
+ *          "course_code": "ENG101"
+ *          "students": "[]",
+ *          "semester": "First",
+ *          "teacher": "5d65f85b1c9d44005d65f85b1c9d4400",
+ *          "year" : "2018",
+ *          "created_at": "2019-08-28T04:23:28.886+00:00",
+ *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
+ *        }
+ *
+ * @apiErrorExample {json} List error
+ *    HTTP/1.1 500 Server Error
+ *    HTTP/1.1 401 unauthorized user token
+ *    HTTP/1.1 401 you don't permission to edit class
+ *    HTTP/1.1 400 staff not found
+ *    HTTP/1.1 400 no Classes found
+ */
 router.delete("/class/:class_id/:student_id", auth, removeStudentFromClass);
+
+/**
+ * @api {post} /api/v1.0/class/add/:class_id Add Student to Class
+ * @apiVersion 1.0.0
+ * @apiName Add Student to class
+ * @apiGroup Class
+ * @apiPermission authenticated staff with ADD_STUDENT_TO_CLASS permission
+ *
+ * @apiParam (Request body) {String} student The student id
+ * @apiParam {class_id} class The class id
+ *
+ * @apiExample {js} Example usage:
+ *
+ * const config = {
+ *  "x-auth-token" : "authenticated staff token"
+ * }
+ *
+ * const data = {
+ *   "student": "5d65f85b1c9d44005d65f85b1c9d4400",
+ * }
+ *
+ * $http.post(url, config, data)
+ *   .success((res, status) => doSomethingHere())
+ *   .error((err, status) => doSomethingHere());
+ *
+ * @apiSuccess (Success 200) {Object} Class class with newly added student!
+ *
+ * @apiSuccessExample {json} Success response:
+ *     HTTPS 200 OK
+ *      "data": {
+ *          "title": "English",
+ *          "course_code": "ENG101"
+ *          "students": "[{
+ *              "student" : "5d65f85b1c9d44005d65f85b1c9d4400"
+ *          }]",
+ *          "semester": "First",
+ *          "year" : "2018",
+ *          "created_at": "2019-08-28T04:23:28.886+00:00",
+ *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
+ *        },
+ *
+ *
+ * @apiErrorExample {json} List error
+ *    HTTP/1.1 500 Server Error
+ *    HTTP/1.1 401 You don't have the permission to add student
+ *    HTTP/1.1 401 unauthorized user token
+ *    HTTP/1.1 400 student is already registered
+ *    HTTP/1.1 400 no student found
+ *    HTTP/1.1 400 Student can't enroll in more than 6 courses
+ */
 router.post(
   "/class/add/:class_id",
   [auth, check("student", "Student is required")],
   addStudentToClass
 );
+
+/**
+ * @api {put} /api/v1.0/class/add/:class_id Add Student to Class
+ * @apiVersion 1.0.0
+ * @apiName Add Student to class
+ * @apiGroup Class
+ * @apiPermission authenticated staff with ADD_STUDENT_TO_CLASS permission
+ *
+ * @apiParam (Request body) {String} student The student id
+ * @apiParam {class_id} class The class id
+ *
+ * @apiExample {js} Example usage:
+ *
+ * const config = {
+ *  "x-auth-token" : "authenticated staff token"
+ * }
+ *
+ *
+ * $http.put(url, config)
+ *   .success((res, status) => doSomethingHere())
+ *   .error((err, status) => doSomethingHere());
+ *
+ * @apiSuccess (Success 200) {Object} Class class with newly added student!
+ *
+ * @apiSuccessExample {json} Success response:
+ *     HTTPS 200 OK
+ *      "data": {
+ *          "title": "English",
+ *          "course_code": "ENG101"
+ *          "students": "[{
+ *              "student" : "5d65f85b1c9d44005d65f85b1c9d4400"
+ *          }]",
+ *          "semester": "First",
+ *          "year" : "2018",
+ *          "created_at": "2019-08-28T04:23:28.886+00:00",
+ *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
+ *        },
+ *
+ *
+ * @apiErrorExample {json} List error
+ *    HTTP/1.1 500 Server Error
+ *    HTTP/1.1 401 You don't have the permission to add student
+ *    HTTP/1.1 401 unauthorized user token
+ *    HTTP/1.1 400 student is already registered
+ *    HTTP/1.1 400 no student found
+ *    HTTP/1.1 400 Student can't enroll in more than 6 courses
+ */
 router.put("/class/add/:class_id", auth, addMyselfToClass);
 
 module.exports = router;

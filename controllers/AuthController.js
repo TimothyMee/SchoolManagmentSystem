@@ -14,7 +14,7 @@ const login = async (req, res) => {
   const { email, password, role } = req.body;
 
   try {
-    let user = "";
+    let user = {};
     if (role === config.get("roles.student")) {
       user = await Student.findOne({ email });
     } else {
