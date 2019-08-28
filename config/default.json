@@ -26,12 +26,10 @@
     "getallclasses": "GET_ALL_CLASSES",
     "getclass": "GET_CLASS",
     "updateclasses": "UPDATE_CLASSES",
+    "removestudentfromclass": "REMOVE_STUDENT_FROM_CLASS",
     "getmyclasses": "GET_MY_CLASSES",
     "addstudenttoclass": "ADD_STUDENT_TO_CLASS"
   },
 
-  "studentrole": "",
-  "staffUpdateClasses": "UPDATE_CLASS",
-  "RemoveStudentFromClass": "REMOVE_STUDENT_FROM_CLASS",
-  "AddStudentToClass": "ADD_STUDENT_TO_CLASS"
+  "studentrole": ""
 }

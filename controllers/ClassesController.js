@@ -6,6 +6,7 @@ const Class = require("../models/Classes");
 const config = require("config");
 const bcrypt = require("bcrypt");
 const { CheckStaffPermissions } = require("./PermissionController");
+var localStorage = require("localStorage");
 
 const createClasses = async (req, res) => {
   const errors = validationResult(req);
@@ -23,7 +24,6 @@ const createClasses = async (req, res) => {
       staff,
       config.get("permissions.createclasses")
     );
-    console.log("permission", haspermission);
     if (!haspermission) {
       return res
         .status(401)
@@ -61,7 +61,6 @@ const getAllClasses = async (req, res) => {
       staff,
       config.get("permissions.getallclasses")
     );
-    console.log("permission", haspermission);
     if (!haspermission) {
       return res
         .status(401)
@@ -93,7 +92,6 @@ const getMyClasses = async (req, res) => {
       staff,
       config.get("permissions.getmyclasses")
     );
-    console.log("permission", haspermission);
     if (!haspermission) {
       return res
         .status(401)
@@ -128,7 +126,6 @@ const getClassById = async (req, res) => {
       staff,
       config.get("permissions.getallclasses")
     );
-    console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
@@ -136,7 +133,7 @@ const getClassById = async (req, res) => {
         .json({ msg: "You don't have the permission to get class" });
     }
 
-    const fetchedClass = await Staff.findById(req.params.id).populate(
+    const fetchedClass = await Class.findById(req.params.id).populate(
       "teacher",
       ["name"]
     );
@@ -168,9 +165,8 @@ const updateClassWithId = async (req, res) => {
 
     var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffUpdateClasses")
+      config.get("permissions.updateclasses")
     );
-    console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
@@ -181,15 +177,19 @@ const updateClassWithId = async (req, res) => {
     if (!fetchClass) return res.status(400).json({ msg: "No class found" });
 
     //check if staff is teaching less than 3
-    const canTeach = checkIfCanStillTeach(
-      req.body.staff,
+    const teacherToBeAdded = Staff.findById(req.body.teacher);
+    await checkIfCanStillTeach(
+      teacherToBeAdded,
       req.body.semester,
       req.body.session
     );
-    if (!canTeach) {
+    if (localStorage.getItem(teacherToBeAdded.id) === "false") {
       return res
         .status(400)
         .json({ msg: "Staff already teaches three classes" });
+    }
+    if (localStorage.getItem(teacherToBeAdded.id) === "true") {
+      localStorage.removeItem(teacherToBeAdded.id);
     }
     const { title, course_code, teacher, semester, year } = req.body;
     if (title) fetchClass.title = title;
@@ -220,7 +220,7 @@ const removeStudentFromClass = async (req, res) => {
 
     var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("RemoveStudentFromClass")
+      config.get("permissions.removestudentfromclass")
     );
     if (!haspermission) {
       return res
@@ -228,7 +228,7 @@ const removeStudentFromClass = async (req, res) => {
         .json({ msg: "You don't have the permission to Remove student" });
     }
 
-    const theClass = Class.findById(req.params.class_id);
+    const theClass = await Class.findById(req.params.class_id);
     const students = theClass.students;
     let deleteIndex = students
       .map(e => e.student)
@@ -257,7 +257,7 @@ const addStudentToClass = async (req, res) => {
 
     var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("permission.addstudenttoclass")
+      config.get("permissions.addstudenttoclass")
     );
     if (!haspermission) {
       return res
@@ -265,24 +265,27 @@ const addStudentToClass = async (req, res) => {
         .json({ msg: "You don't have the permission to Add student" });
     }
 
-    const theClass = Class.findById(req.params.class_id);
+    const theClass = await Class.findById(req.params.class_id);
+
+    if (!theClass) return res.status(400).json({ msg: "Class not found" });
+
     const students = theClass.students;
     let check = students.filter(x => x.student === req.body.student);
-    if (check) {
+    if (check.length) {
       return res
         .status(400)
         .json({ msg: "This student is already registered" });
     }
 
-    const canEnroll = checkIfCanStillEnroll(
-      studentToBeAdded,
-      theClass.semester,
-      theClass.year
-    );
-    if (!canEnroll) {
+    checkIfCanStillEnroll(studentToBeAdded, theClass.semester, theClass.year);
+    if (localStorage.getItem(studentToBeAdded.id) === "false") {
       return res
         .status(400)
         .json({ msg: "Student can't enroll in more than 6 courses" });
+    }
+
+    if (localStorage.getItem(studentToBeAdded.id) === "true") {
+      localStorage.removeItem(studentToBeAdded.id);
     }
     theClass.students.unshift({ student: req.body.student });
 
@@ -303,7 +306,7 @@ const addMyselfToClass = async (req, res) => {
 
     var haspermission = await CheckStaffPermissions(
       studentToBeAdded,
-      config.get("AddStudentToClass")
+      config.get("permissions.addstudenttoclass")
     );
     if (!haspermission) {
       return res
@@ -311,24 +314,25 @@ const addMyselfToClass = async (req, res) => {
         .json({ msg: "You don't have the permission to Enroll in class" });
     }
 
-    const theClass = Class.findById(req.params.class_id);
+    const theClass = await Class.findById(req.params.class_id);
+    if (!theClass) return res.status(400).json({ msg: "Class not found" });
+
     const students = theClass.students;
     let check = students.filter(x => x.student === req.student.id);
-    if (check) {
+    if (check.length) {
       return res.status(400).json({ msg: "You have already registered" });
     }
 
-    const canEnroll = checkIfCanStillEnroll(
-      studentToBeAdded,
-      theClass.semester,
-      theClass.year
-    );
-    if (!canEnroll) {
+    checkIfCanStillEnroll(studentToBeAdded, theClass.semester, theClass.year);
+    if (localStorage.getItem(studentToBeAdded.id) === "false") {
       return res
         .status(400)
         .json({ msg: "You can't enroll in more than 6 classes" });
     }
     theClass.students.unshift({ teacher: req.student.id });
+    if (localStorage.getItem(studentToBeAdded.id) === "true") {
+      localStorage.removeItem(studentToBeAdded.id);
+    }
 
     await theClass.save();
     res.status(200).send(theClass);
@@ -337,38 +341,52 @@ const addMyselfToClass = async (req, res) => {
     return res.status(500).send("Server Error");
   }
 };
-const checkIfCanStillTeach = (staff, semester, year) => {
-  const teaching = Class.find({
-    teacher: staff.id,
-    semester: semester,
-    year: year
-  });
-  if (teaching.length < 3) {
-    return true;
-  } else {
-    return false;
-  }
+
+const checkIfCanStillTeach = async (staff, semester, year) => {
+  await Class.find(
+    {
+      teacher: staff.id,
+      semester: semester,
+      year: year
+    },
+    (err, result) => {
+      let res = result.length;
+      if (res < 3) {
+        setLocalStorageto(staff.id, "true");
+      } else {
+        setLocalStorageto(staff.id, "false");
+      }
+    }
+  );
+};
+
+const setLocalStorageto = (staffid, boolString) => {
+  localStorage.setItem(staffid, boolString);
 };
 
 const checkIfCanStillEnroll = (student, semester, year) => {
-  const classes = Class.find({
-    semester: semester,
-    year: year
-  });
+  const classes = Class.find(
+    {
+      semester: semester,
+      year: year
+    },
+    (err, result) => {
+      let enrolled = 0;
+      result.forEach(item => {
+        const students = item.students;
+        const check = students.filter(x => x.student == student.id);
+        if (check) {
+          enrolled++;
+        }
+      });
 
-  let enrolled = 0;
-  classes.forEach(item => {
-    const students = item.students;
-    const check = student.filter(x => x.student == student.id);
-    if (check) {
-      enrolled++;
+      if (enrolled < 6) {
+        setLocalStorageto(student.id, "true");
+      } else {
+        setLocalStorageto(student.id, "false");
+      }
     }
-  });
-  if (enrolled < 6) {
-    return true;
-  } else {
-    return false;
-  }
+  );
 };
 
 module.exports = {

@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
 
 app.use("/api", require("./api"));
 
-const PORT = 5000;
+const PORT = 2000;
 app.listen(process.env.PORT || PORT, () => {
   console.log(`Server started on port on ${PORT}`);
 });

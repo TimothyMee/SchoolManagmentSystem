@@ -21,8 +21,7 @@ const ClassSchema = new Schema({
   ],
   teacher: {
     type: Schema.Types.ObjectId,
-    ref: "staff",
-    required: true
+    ref: "staff"
   },
   semester: {
     type: String,

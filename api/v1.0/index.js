@@ -4,6 +4,8 @@ var router = express.Router();
 const auth = require("../../middleware/auth");
 const { login } = require("../../controllers/AuthController");
 const bcrypt = require("bcrypt");
+const config = require("config");
+
 const {
   createStudent,
   getAllStudents,
@@ -863,7 +865,7 @@ router.delete("/permission/:role/:type", auth, removePermissionInRole);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *      "data": {
+ *     {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[]",
@@ -913,7 +915,7 @@ router.post(
  *  "x-auth-token" : "authenticated staff token"
  * }
  *
- * $http.get(url, config, data)
+ * $http.get(url, config)
  *   .success((res, status) => doSomethingHere())
  *   .error((err, status) => doSomethingHere());
  *
@@ -921,7 +923,6 @@ router.post(
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     {
  *      [{
  *          "title": "English",
  *          "course_code": "ENG101"
@@ -930,8 +931,7 @@ router.post(
  *          "year" : "2018",
  *          "created_at": "2019-08-28T04:23:28.886+00:00",
  *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
- *        }],
- *     }
+ *        }]
  *
  *
  * @apiErrorExample {json} List error
@@ -957,7 +957,7 @@ router.get("/class", auth, getAllClasses);
  *  "x-auth-token" : "authenticated staff token"
  * }
  *
- * $http.get(url, config, data)
+ * $http.get(url, config)
  *   .success((res, status) => doSomethingHere())
  *   .error((err, status) => doSomethingHere());
  *
@@ -965,7 +965,6 @@ router.get("/class", auth, getAllClasses);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     {
  *      [{
  *          "title": "English",
  *          "course_code": "ENG101"
@@ -976,7 +975,6 @@ router.get("/class", auth, getAllClasses);
  *          "created_at": "2019-08-28T04:23:28.886+00:00",
  *          "created_by": "5d65f85b1c9d44005d65f85b1c9d4400"
  *        }],
- *     }
  *
  *
  * @apiErrorExample {json} List error
@@ -1001,15 +999,15 @@ router.get("/class/myClasses", auth, getMyClasses);
  *  "x-auth-token" : "authenticated staff token"
  * }
  *
- * $http.get(url, config, data)
+ * $http.get(url, config)
  *   .success((res, status) => doSomethingHere())
  *   .error((err, status) => doSomethingHere());
  *
- * @apiSuccess (Success 200) {Object} Class object class found!
+ * @apiSuccess (Success 200) {Object} Class object of class found!
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *      "data": {
+ *      {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[]",
@@ -1063,7 +1061,7 @@ router.get("/class/:id", auth, getClassById);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     "data": {
+ *     {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[]",
@@ -1108,7 +1106,7 @@ router.put("/class/:id", auth, updateClassWithId);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *     "data": {
+ *     {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[]",
@@ -1129,7 +1127,7 @@ router.put("/class/:id", auth, updateClassWithId);
 router.delete("/class/:class_id/:student_id", auth, removeStudentFromClass);
 
 /**
- * @api {post} /api/v1.0/class/add/:class_id Add Student to Class
+ * @api {post} /api/v1.0/class/:class_id/add Add Student to Class
  * @apiVersion 1.0.0
  * @apiName Add Student to class
  * @apiGroup Class
@@ -1156,7 +1154,7 @@ router.delete("/class/:class_id/:student_id", auth, removeStudentFromClass);
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *      "data": {
+ *       {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[{
@@ -1178,13 +1176,13 @@ router.delete("/class/:class_id/:student_id", auth, removeStudentFromClass);
  *    HTTP/1.1 400 Student can't enroll in more than 6 courses
  */
 router.post(
-  "/class/add/:class_id",
+  "/class/:class_id/add",
   [auth, check("student", "Student is required")],
   addStudentToClass
 );
 
 /**
- * @api {put} /api/v1.0/class/add/:class_id Add Student to Class
+ * @api {put} /api/v1.0/class/:class_id/add Add Student to Class
  * @apiVersion 1.0.0
  * @apiName Add Student to class
  * @apiGroup Class
@@ -1208,7 +1206,7 @@ router.post(
  *
  * @apiSuccessExample {json} Success response:
  *     HTTPS 200 OK
- *      "data": {
+ *       {
  *          "title": "English",
  *          "course_code": "ENG101"
  *          "students": "[{
@@ -1229,6 +1227,108 @@ router.post(
  *    HTTP/1.1 400 no student found
  *    HTTP/1.1 400 Student can't enroll in more than 6 courses
  */
-router.put("/class/add/:class_id", auth, addMyselfToClass);
+router.put("/class/:class_id/add", auth, addMyselfToClass);
+
+/**
+ * @api {get} /api/v1.0/roles/ Get all roles
+ * @apiVersion 1.0.0
+ * @apiName Fetch Roles
+ * @apiGroup Roles
+ * @apiPermission no authentication required
+ *
+ * @apiExample {js} Example usage:
+ *
+ *
+ * $http.get(url)
+ *   .success((res, status) => doSomethingHere())
+ *   .error((err, status) => doSomethingHere());
+ *
+ * @apiSuccess (Success 200) {Object} Class roles found!
+ *
+ * @apiSuccessExample {json} Success response:
+ *     HTTPS 200 OK
+ *      "roles": {
+ *         "student": "STUDENT",
+ *          "principal": "PRINCIPAL",
+ *          "admin": "ADMIN",
+ *          "teacher": "TEACHER"
+ *        },
+ *
+ *
+ * @apiErrorExample {json} List error
+ *    HTTP/1.1 500 Server Error
+ *    HTTP/1.1 204 no roles found
+ *
+ */
+router.get("/roles", (req, res) => {
+  try {
+    const roles = config.get("roles");
+    if (Object.keys(roles).length === 0) {
+      return res.status(204).json({ msg: "No roles found" });
+    }
+    res.status(200).json(roles);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server Error");
+  }
+});
+
+/**
+ * @api {get} /api/v1.0/permissions-available/ Get all permissons available
+ * @apiVersion 1.0.0
+ * @apiName Fetch Permissions
+ * @apiGroup Permission
+ * @apiPermission no authentication required
+ *
+ * @apiExample {js} Example usage:
+ *
+ *
+ * $http.get(url)
+ *   .success((res, status) => doSomethingHere())
+ *   .error((err, status) => doSomethingHere());
+ *
+ * @apiSuccess (Success 200) {Object} Class permissions found!
+ *
+ * @apiSuccessExample {json} Success response:
+ *     HTTPS 200 OK
+ *      "permissions": {
+ *         "createstudent": "CREATE_STUDENT",
+ *         "createpermission": "CREATE_PERMISSION",
+ *         "updatestudent": "UPDATE_STUDENT",
+ *         "deletestudent": "DELETE_STUDENT",
+ *         "createstaff": "CREATE_STAFF",
+ *         "getallstaff": "GET_ALL_STAFF",
+ *         "getstaff": "GET_STAFF",
+ *         "updatestaff": "UPDATE_STAFF",
+ *         "deletestaff": "DELETE_STAFF",
+ *         "getallpermission": "GET_ALL_PERMISSION",
+ *         "getpermission": "GET_PERMISSION",
+ *         "removepermission": "REMOVE_PERMISSION",
+ *         "createclasses": "CREATE_CLASSES",
+ *         "getallclasses": "GET_ALL_CLASSES",
+ *         "getclass": "GET_CLASS",
+ *         "updateclasses": "UPDATE_CLASSES",
+ *         "getmyclasses": "GET_MY_CLASSES",
+ *         "addstudenttoclass": "ADD_STUDENT_TO_CLASS"
+ *       }
+ *
+ *
+ * @apiErrorExample {json} List error
+ *    HTTP/1.1 500 Server Error
+ *    HTTP/1.1 204 no roles found
+ *
+ */
+router.get("/permissions-available", (req, res) => {
+  try {
+    const roles = config.get("permissions");
+    if (Object.keys(roles).length === 0) {
+      return res.status(204).json({ msg: "No permissions found" });
+    }
+    res.status(200).json(roles);
+  } catch (error) {
+    console.log(error);
+    res.status(500).send("Server Error");
+  }
+});
 
 module.exports = router;
