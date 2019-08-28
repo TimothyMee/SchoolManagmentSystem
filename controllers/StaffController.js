@@ -18,16 +18,20 @@ const createStaff = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffCreatePermission")
+      config.get("permissions.createstaff")
     );
-    console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
         .status(401)
         .json({ msg: "You don't have the permission to create staff" });
+    }
+
+    const oldStaff = await Staff.findOne({ email: req.body.email });
+    if (oldStaff && oldStaff.email) {
+      return res.status(400).json({ msg: "staff already exists" });
     }
 
     const newStaff = {
@@ -62,9 +66,9 @@ const getAllStaff = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffGetAllPermission")
+      config.get("permissions.getallstaff")
     );
     console.log("permission", haspermission);
     //verify the student
@@ -97,9 +101,9 @@ const getStaffById = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffGetOnePermission")
+      config.get("permissions.getstaff")
     );
     console.log("permission", haspermission);
     //verify the student
@@ -109,9 +113,10 @@ const getStaffById = async (req, res) => {
         .json({ msg: "You don't have the permission to get staff" });
     }
 
-    const fetchedStaff = await Staff.findById(req.params.id).populate("created_by", [
-      "name"
-    ]);
+    const fetchedStaff = await Staff.findById(req.params.id).populate(
+      "created_by",
+      ["name"]
+    );
 
     if (!fetchedStaff || fetchedStaff.deleted)
       return res.status(400).json({ msg: "No Staff found" });
@@ -139,9 +144,9 @@ const updateStaffWithId = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffEditPermission")
+      config.get("permissions.updatestaff")
     );
     console.log("permission", haspermission);
     //verify the student
@@ -187,9 +192,9 @@ const deleteStaffWithId = async (req, res) => {
     if (!staffToBeDeleted || staffToBeDeleted.deleted)
       return res.status(400).json({ msg: "No Student found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffDeletePermission")
+      config.get("permissions.deletestaff")
     );
     console.log("permission", haspermission);
     if (!haspermission) {

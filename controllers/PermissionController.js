@@ -16,12 +16,12 @@ const addPermissionToRole = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("createPermission")
+      config.get("permissions.createpermission")
     );
 
-    if (!haspermission) {
+    if (!haspermission && req.body.role !== config.get("roles.principal")) {
       return res
         .status(401)
         .json({ msg: "You don't have the permission to create Permissions" });
@@ -29,11 +29,11 @@ const addPermissionToRole = async (req, res) => {
 
     const role = req.body.role;
     const newPermission = req.body.permission;
-    const permission = Permission.find({ role: role });
-    if (permission) {
+    const permission = await Permission.findOne({ role: role });
+    if (permission && permission.role) {
       const permissions = permission.permissions;
       const check = permissions.filter(x => x.permission === newPermission);
-      if (check) {
+      if (check.length !== 0) {
         return res.status(400).json({
           msg: "You already have the permission set up for this role"
         });
@@ -45,7 +45,8 @@ const addPermissionToRole = async (req, res) => {
 
     const newPermissionRole = new Permission({
       role: role,
-      permissions: [{ permission: newPermission }]
+      permissions: [{ permission: newPermission }],
+      created_by: req.staff.id
     });
 
     await newPermissionRole.save();
@@ -66,9 +67,9 @@ const getPermissions = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("getAllPermission")
+      config.get("permissions.getallpermission")
     );
     //check the permission
     if (!haspermission) {
@@ -101,9 +102,9 @@ const getPermissionsByRole = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("getPermission")
+      config.get("permissions.getpermission")
     );
     //check the permission
     if (!haspermission) {
@@ -143,9 +144,9 @@ const removePermissionInRole = async (req, res) => {
     if (!permission || permission.permissions)
       return res.status(400).json({ msg: "No Permission found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffDeletePermission")
+      config.get("permissions.removepermission")
     );
 
     if (!haspermission) {
@@ -167,13 +168,15 @@ const removePermissionInRole = async (req, res) => {
   }
 };
 
-const CheckStaffPermissions = (staff, action) => {
+const CheckStaffPermissions = async (staff, action) => {
   const role = staff.role;
-  const permissionGroup = Permission.findOne({ role: role });
+  const permissionGroup = await Permission.findOne({ role: role });
+  if (!permissionGroup.permissions) {
+    return false;
+  }
   const permissions = permissionGroup.permissions;
-
   var permission = permissions.filter(e => e.permission === action);
-  if (permission) {
+  if (permission.length > 0) {
     return true;
   } else {
     return false;

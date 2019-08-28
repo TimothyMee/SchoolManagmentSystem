@@ -15,7 +15,7 @@ const login = async (req, res) => {
 
   try {
     let user = "";
-    if (role === config.get(Student)) {
+    if (role === config.get("roles.student")) {
       user = await Student.findOne({ email });
     } else {
       user = await Staff.findOne({ email });
@@ -28,17 +28,20 @@ const login = async (req, res) => {
     if (!isMatch) {
       return res.status(400).json([{ msg: "Invalid Email / Password" }]);
     }
-    if (role === config.get(Student)) {
-      const payload = {
+    let payload = {};
+    if (role === config.get("roles.student")) {
+      payload = {
         student: {
           id: user.id
-        }
+        },
+        type: config.get("roles.student")
       };
     } else {
-      const payload = {
+      payload = {
         staff: {
           id: user.id
-        }
+        },
+        type: config.get(`roles.${role.toLowerCase()}`)
       };
     }
     jwt.sign(

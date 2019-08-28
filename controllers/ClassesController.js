@@ -19,12 +19,11 @@ const createClasses = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffCreateClasses")
+      config.get("permissions.createclasses")
     );
     console.log("permission", haspermission);
-    //verify the student
     if (!haspermission) {
       return res
         .status(401)
@@ -58,12 +57,11 @@ const getAllClasses = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffGetAllClasses")
+      config.get("permissions.getallclasses")
     );
     console.log("permission", haspermission);
-    //verify the student
     if (!haspermission) {
       return res
         .status(401)
@@ -91,12 +89,11 @@ const getMyClasses = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffMyClasses")
+      config.get("permissions.getmyclasses")
     );
     console.log("permission", haspermission);
-    //verify the student
     if (!haspermission) {
       return res
         .status(401)
@@ -127,16 +124,16 @@ const getClassById = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("staffGetAllClasses")
+      config.get("permissions.getallclasses")
     );
     console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
         .status(401)
-        .json({ msg: "You don't have the permission to get staff" });
+        .json({ msg: "You don't have the permission to get class" });
     }
 
     const fetchedClass = await Staff.findById(req.params.id).populate(
@@ -169,7 +166,7 @@ const updateClassWithId = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
       config.get("staffUpdateClasses")
     );
@@ -185,7 +182,7 @@ const updateClassWithId = async (req, res) => {
 
     //check if staff is teaching less than 3
     const canTeach = checkIfCanStillTeach(
-      staff,
+      req.body.staff,
       req.body.semester,
       req.body.session
     );
@@ -221,7 +218,7 @@ const removeStudentFromClass = async (req, res) => {
     if (!studentToBeRemoved)
       return res.status(400).json({ msg: "No Student found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
       config.get("RemoveStudentFromClass")
     );
@@ -258,7 +255,7 @@ const addStudentToClass = async (req, res) => {
     if (!studentToBeAdded)
       return res.status(400).json({ msg: "No Student found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
       config.get("AddStudentToClass")
     );
@@ -304,7 +301,7 @@ const addMyselfToClass = async (req, res) => {
     if (!studentToBeAdded)
       return res.status(400).json({ msg: "No Student found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
       config.get("AddStudentToClass")
     );

@@ -1,7 +1,7 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const config = require("config");
-const StudentRole = config.get("studentRole");
+const StudentRole = config.get("roles.student");
 
 const StudentSchema = new Schema({
   firstname: {

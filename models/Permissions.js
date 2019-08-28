@@ -7,7 +7,7 @@ const PermissionSchema = new mongoose.Schema({
   },
   permissions: [
     {
-      permisson: {
+      permission: {
         type: String
       }
     }

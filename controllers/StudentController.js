@@ -18,6 +18,20 @@ const createStudent = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
+    var haspermission = await CheckStaffPermissions(
+      staff,
+      config.get("permissions.createstudent")
+    );
+    if (!haspermission) {
+      return res
+        .status(401)
+        .json({ msg: "You don't have the permission to create students" });
+    }
+
+    const oldStudent = await Student.findOne({ email: req.body.email });
+    if (oldStudent && oldStudent.email) {
+      return res.status(400).json({ msg: "student already exists" });
+    }
     const newStudent = {
       created_by: staff.id,
       firstname: req.body.firstname,
@@ -51,7 +65,7 @@ const getAllStudents = async (req, res) => {
       .sort({ created_date: -1 })
       .populate("created_by", ["name"]);
 
-    if (!students) return res.status(400).json({ msg: "no Students found" });
+    if (!students) return res.status(400).json({ msg: "no Student found" });
 
     res.status(200).json(students);
   } catch (error) {
@@ -70,9 +84,10 @@ const getStudentById = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    const student = await Student.findById(req.params.id).populate("created_by", [
-      "name"
-    ]);
+    const student = await Student.findById(req.params.id).populate(
+      "created_by",
+      ["name"]
+    );
 
     if (!student || student.deleted)
       return res.status(400).json({ msg: "No Student found" });
@@ -90,9 +105,10 @@ const getStudentById = async (req, res) => {
 const viewMyProfile_Student = async (req, res) => {
   try {
     //verify staff
-    const student = await Student.findById(req.student.id).populate("created_by", [
-      "name"
-    ]);
+    const student = await Student.findById(req.student.id).populate(
+      "created_by",
+      ["name"]
+    );
     if (!student || student.deleted)
       return res.status(400).json({ msg: "No Student found" });
 
@@ -118,7 +134,7 @@ const viewMyProfile_Staff = async (req, res) => {
     res.status(200).json(staff);
   } catch (error) {
     if (error.kind === "ObjectId") {
-      return res.status(400).json({ msg: "staff not found" });
+      return res.status(400).json({ msg: "No Staff found" });
     }
     console.error(error.message);
     return res.status(500).send("Server Error");
@@ -138,11 +154,10 @@ const updateStudentWithId = async (req, res) => {
     if (!staff || staff.deleted)
       return res.status(401).json({ msg: "unauthorized user token" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("studentUpdatePermission")
+      config.get("permissions.updatestudent")
     );
-    console.log("permission", haspermission);
     //verify the student
     if (!haspermission) {
       return res
@@ -181,9 +196,9 @@ const deleteStudentWithId = async (req, res) => {
     if (!student || student.deleted)
       return res.status(400).json({ msg: "No Student found" });
 
-    var haspermission = CheckStaffPermissions(
+    var haspermission = await CheckStaffPermissions(
       staff,
-      config.get("studentDeletePermission")
+      config.get("permissions.deletestudent")
     );
     console.log("permission", haspermission);
     if (!haspermission) {
