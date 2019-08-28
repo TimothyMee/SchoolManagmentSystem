@@ -287,7 +287,7 @@ const addStudentToClass = async (req, res) => {
         .status(400)
         .json({ msg: "Student can't enroll in more than 6 courses" });
     }
-    theClass.students.unshift({ teacher: req.body.student });
+    theClass.students.unshift({ student: req.body.student });
 
     await theClass.save();
     res.status(200).send(theClass);
@@ -316,7 +316,7 @@ const addMyselfToClass = async (req, res) => {
 
     const theClass = Class.findById(req.params.class_id);
     const students = theClass.students;
-    let check = students.filter(x => x.student === req.body.student);
+    let check = students.filter(x => x.student === req.student.id);
     if (check) {
       return res.status(400).json({ msg: "You have already registered" });
     }
@@ -331,7 +331,7 @@ const addMyselfToClass = async (req, res) => {
         .status(400)
         .json({ msg: "You can't enroll in more than 6 classes" });
     }
-    theClass.students.unshift({ teacher: req.body.student });
+    theClass.students.unshift({ teacher: req.student.id });
 
     await theClass.save();
     res.status(200).send(theClass);
@@ -375,9 +375,12 @@ const checkIfCanStillEnroll = (student, semester, year) => {
 };
 
 module.exports = {
-  createStaff,
-  getAllStaff,
-  getStaffById,
-  updateStaffWithId,
-  deleteStaffWithId
+  createClasses,
+  getAllClasses,
+  getMyClasses,
+  getClassById,
+  updateClassWithId,
+  removeStudentFromClass,
+  addStudentToClass,
+  addMyselfToClass
 };

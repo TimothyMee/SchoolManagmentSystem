@@ -1,6 +1,43 @@
 const express = require("express");
 const { check } = require("express-validator");
 var router = express.Router();
+const auth = require("../../middleware/auth");
+const { login } = require("../../controllers/AuthController");
+const {
+  createStudent,
+  getAllStudents,
+  getStudentById,
+  updateStudentWithId,
+  viewMyProfile_Student,
+  viewMyProfile_Staff,
+  deleteStudentWithId
+} = require("../../controllers/StudentController");
+
+const {
+  createStaff,
+  getAllStaff,
+  getStaffById,
+  updateStaffWithId,
+  deleteStaffWithId
+} = require("../../controllers/StaffController");
+
+const {
+  addPermissionToRole,
+  getPermissions,
+  getPermissionsByRole,
+  removePermissionInRole
+} = require("../../controllers/PermissionController");
+
+const {
+  createClasses,
+  getAllClasses,
+  getMyClasses,
+  getClassById,
+  updateClassWithId,
+  removeStudentFromClass,
+  addStudentToClass,
+  addMyselfToClass
+} = require("../../controllers/ClassesController");
 
 /**
  * @api {post} /api/v1.0/student/register Create a Student
@@ -61,4 +98,113 @@ router.post(
   ],
   registerUser => {}
 );
+
+router.post(
+  "/auth/login",
+  [
+    check("email", "Please use a valid email").isEmail(),
+    check("Password")
+      .not()
+      .isEmpty()
+  ],
+  login
+);
+
+router.post(
+  "/student/create",
+  [
+    auth,
+    check("firstname", "FirstName is required")
+      .not()
+      .isEmpty(),
+    check("lastname", "LastName is required")
+      .not()
+      .isEmpty(),
+    check("middlename", "MiddleName is required")
+      .not()
+      .isEmpty(),
+    check("email", "Please use a valid email").isEmail()
+  ],
+  createStudent
+);
+
+router.get("/student", auth, getAllStudents);
+router.get("/student/:id", auth, getStudentById);
+router.put("/student/:id", auth, updateStudentWithId);
+router.get("/student/myprofile", auth, viewMyProfile_Student);
+router.get("/staff/myprofile", auth, viewMyProfile_Staff);
+router.delete("/student/:id", auth, deleteStudentWithId);
+
+router.post(
+  "/staff",
+  [
+    auth,
+    check("firstname", "FirstName is required")
+      .not()
+      .isEmpty(),
+    check("lastname", "LastName is required")
+      .not()
+      .isEmpty(),
+    check("middlename", "MiddleName is required")
+      .not()
+      .isEmpty(),
+    check("email", "Please use a valid email").isEmail(),
+    check("role", "Role is Required")
+  ],
+  createStaff
+);
+
+router.get("/staff", auth, getAllStaff);
+router.get("/staff/:id", auth, getStaffById);
+router.put("/staff/:id", auth, updateStaffWithId);
+router.delete("/staff/:id", auth, deleteStaffWithId);
+
+router.post(
+  "/permission",
+  [
+    auth,
+    check("role", "Role is required")
+      .not()
+      .isEmpty(),
+    check("permission", "Permission is required")
+      .not()
+      .isEmpty()
+  ],
+  addPermissionToRole
+);
+router.get("/permission", auth, getPermissions);
+router.get("/permission/:role", auth, getPermissionsByRole);
+router.get("/permission/:role/:type", auth, removePermissionInRole);
+
+router.post(
+  "/class",
+  [
+    auth,
+    check("title", "Title is required")
+      .not()
+      .isEmpty(),
+    check("course_code", "Course Code is required")
+      .not()
+      .isEmpty(),
+    check("semester", "Semester is required")
+      .not()
+      .isEmpty(),
+    check("year", "Year is required")
+      .not()
+      .isEmpty()
+  ],
+  createClasses
+);
+router.get("/class", auth, getAllClasses);
+router.get("/class/myClasses", auth, getMyClasses);
+router.get("/class/:id", auth, getClassById);
+router.put("/class/:id", auth, updateClassWithId);
+router.delete("/class/:class_id/:student_id", auth, removeStudentFromClass);
+router.post(
+  "/class/add/:class_id",
+  [auth, check("student", "Student is required")],
+  addStudentToClass
+);
+router.put("/class/add/:class_id", auth, addMyselfToClass);
+
 module.exports = router;
