@@ -41,7 +41,7 @@
     "examples": [
       {
         "title": "Example usage:",
-        "content": "const data = {\n  \"email\": \"Timothy@gmail.com\"\n   \"role\": \"Teacher\"\n  \"password\": \"password\"\n}\n\n$http.post(url, data)\n  .success((res, status) => doSomethingHere())\n  .error((err, status) => doSomethingHere());",
+        "content": "const data = {\n  \"email\": \"Timothy@gmail.com\"\n   \"role\": \"Teacher\"\n  \"password\": \"password\"\n}\n\n$http.post(url, data)\n  .success((res, status) => doSomethingHere())\n  .error((err, status) => doSomethingHere());\n\n\nNOTE:Use email = timothy33.tf@gmail.com, password = timothy and role = PRINCIPAL to login.\nThis account can be used to create any other staff and give permissions",
         "type": "js"
       }
     ],

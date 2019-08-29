@@ -64,6 +64,10 @@ const {
  *   .success((res, status) => doSomethingHere())
  *   .error((err, status) => doSomethingHere());
  *
+ *
+ * NOTE:Use email = timothy33.tf@gmail.com, password = timothy and role = PRINCIPAL to login.
+ * This account can be used to create any other staff and give permissions
+ *
  * @apiSuccess (Success 200) {String} token User token!
  *
  * @apiSuccessExample {json} Success response:
@@ -76,6 +80,8 @@ const {
  * @apiErrorExample {json} List error
  *    HTTP/1.1 500 Server Error
  *    HTTP/1.1 400 Invalid Email / Password
+ *
+ *
  */
 router.post(
   "/auth/login",
