@@ -1,5 +1,5 @@
 {
-  "mongoURI": "mongodb+srv://schoolsystem:schoolsystem123@cluster101-tnnw9.mongodb.net/test?retryWrites=true&w=majority",
+  "mongoURI": "mongoURI",
   "jwtSecret": "jwtschoolsystemsecret",
 
   "roles": {
