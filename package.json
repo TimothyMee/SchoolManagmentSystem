@@ -17,7 +17,7 @@
   "author": "TimothyMee",
   "license": "MIT",
   "dependencies": {
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "config": "^3.2.2",
     "express": "^4.17.1",
     "express-validator": "^6.1.1",
